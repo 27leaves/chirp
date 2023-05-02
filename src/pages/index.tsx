@@ -9,9 +9,19 @@ dayjs.extend(relativeTime);
 import { RouterOutputs, api } from "~/utils/api";
 import Image from "next/image";
 import { LoadingPage } from "~/components/loading";
+import { useState } from "react";
 
 const CreatePostWizard = () => {
   const { user } = useUser();
+  const ctx = api.useContext();
+  const { mutate, isLoading: isPosting } = api.posts.create.useMutation({
+    onSuccess: () => {
+      setInput("");
+      void ctx.posts.getAll.invalidate();
+    },
+  });
+
+  const [input, setInput] = useState("");
 
   console.log(user);
 
@@ -29,7 +39,14 @@ const CreatePostWizard = () => {
       <input
         placeholder="Type some emojis!"
         className="grow bg-transparent outline-none"
+        type="text"
+        value={input}
+        onChange={(e) => setInput(e.target.value)}
+        disabled={isPosting}
       ></input>
+      <button onClick={() => mutate({ content: input })} disabled={isPosting}>
+        Post
+      </button>
     </div>
   );
 };
@@ -70,16 +87,15 @@ const Feed = () => {
 
   return (
     <div className="flex flex-col">
-            {[...data, ...data]?.map((fullPost) => (
-              <PostView {...fullPost} key={fullPost.post.id}></PostView>
-            ))}
-          </div>
-  )
-  
-}
+      {[...data, ...data]?.map((fullPost) => (
+        <PostView {...fullPost} key={fullPost.post.id}></PostView>
+      ))}
+    </div>
+  );
+};
 
 const Home: NextPage = () => {
-  const {user, isSignedIn, isLoaded: userLoaded} = useUser();
+  const { user, isSignedIn, isLoaded: userLoaded } = useUser();
 
   api.posts.getAll.useQuery();
 

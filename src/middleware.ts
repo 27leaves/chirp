@@ -1,9 +1,7 @@
 import { withClerkMiddleware } from "@clerk/nextjs/server";
 import { NextResponse } from "next/server";
-import type { NextRequest } from "next/server";
  
-export default withClerkMiddleware((req: NextRequest) => {
-    console.log("middleware running");
+export default withClerkMiddleware(() => {
   return NextResponse.next();
 });
  
@@ -17,6 +15,5 @@ export const config = {
      * - public folder
      */
     "/((?!static|.*\\..*|_next|favicon.ico).*)",
-    "/",
   ],
 }
